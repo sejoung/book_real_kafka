@@ -1,0 +1,140 @@
+version: "3.0"
+services:
+  zoo1:
+    image: zookeeper:3.7.0
+    hostname: zoo1
+    restart: always
+    ports:
+    - "2181:2181"
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_PORT: 2181
+      ZOO_SERVERS: server.1=0.0.0.0:2888:3888;2181
+    volumes:
+      - /Users/beni/kafka/zoo1/data:/data
+      - /Users/beni/kafka/zoo1/datalog:/datalog
+  zoo2:
+    image: zookeeper:3.7.0
+    hostname: zoo2
+    restart: always
+    ports:
+      - "2182:2182"
+    environment:
+      ZOO_MY_ID: 2
+      ZOO_PORT: 2182
+      ZOO_SERVERS: server.1=0.0.0.0:2888:3888;2182
+    volumes:
+      - /Users/beni/kafka/zoo2/data:/data
+      - /Users/beni/kafka/zoo2/datalog:/datalog
+  zoo3:
+    image: zookeeper:3.7.0
+    hostname: zoo3
+    restart: always
+    ports:
+      - "2183:2183"
+    environment:
+      ZOO_MY_ID: 2
+      ZOO_PORT: 2183
+      ZOO_SERVERS: server.1=0.0.0.0:2888:3888;2183
+    volumes:
+      - /Users/beni/kafka/zoo3/data:/data
+      - /Users/beni/kafka/zoo3/datalog:/datalog
+  kafka1:
+    image: confluentinc/cp-kafka:6.1.1
+    hostname: kafka1
+    restart: always
+    links:
+      - zoo1:zoo1
+      - zoo2:zoo2
+      - zoo3:zoo3
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: LISTENER_DOCKER_INTERNAL://kafka1:19092,LISTENER_DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_DOCKER_INTERNAL
+      KAFKA_ZOOKEEPER_CONNECT: "zoo1:2181,zoo2:2182,zoo3:2183"
+      KAFKA_BROKER_ID: 1
+      KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_LOG_RETENTION_HOURS: 24
+    volumes:
+      - /Users/beni/kafka/kafka1/data:/var/lib/kafka/data
+    depends_on:
+      - zoo1
+      - zoo2
+      - zoo3
+  kafka2:
+    image: confluentinc/cp-kafka:6.1.1
+    hostname: kafka2
+    restart: always
+    links:
+      - zoo1:zoo1
+      - zoo2:zoo2
+      - zoo3:zoo3
+    ports:
+      - "9093:9093"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: LISTENER_DOCKER_INTERNAL://kafka2:19093,LISTENER_DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_DOCKER_INTERNAL
+      KAFKA_ZOOKEEPER_CONNECT: "zoo1:2181,zoo2:2182,zoo3:2183"
+      KAFKA_BROKER_ID: 2
+      KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_LOG_RETENTION_HOURS: 24
+    volumes:
+      - /Users/beni/kafka/kafka2/data:/var/lib/kafka/data
+    depends_on:
+      - zoo1
+      - zoo2
+      - zoo3
+
+  kafka3:
+    image: confluentinc/cp-kafka:6.1.1
+    hostname: kafka3
+    restart: always
+    links:
+      - zoo1:zoo1
+      - zoo2:zoo2
+      - zoo3:zoo3
+    ports:
+      - "9094:9094"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: LISTENER_DOCKER_INTERNAL://kafka3:19094,LISTENER_DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_DOCKER_INTERNAL
+      KAFKA_ZOOKEEPER_CONNECT: "zoo1:2181,zoo2:2182,zoo3:2183"
+      KAFKA_BROKER_ID: 3
+      KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_LOG_RETENTION_HOURS: 24
+    volumes:
+      - /Users/beni/kafka/kafka3/data:/var/lib/kafka/data
+    depends_on:
+      - zoo1
+      - zoo2
+      - zoo3
+
+  cmak:
+    image: hlebalbau/kafka-manager:stable
+    hostname: cmak
+    restart: always
+    ports:
+      - "9000:9000"
+    links:
+      - zoo1:zoo1
+      - zoo2:zoo2
+      - zoo3:zoo3
+    environment:
+      ZK_HOSTS: "zoo1:2181"
+    depends_on:
+      - zoo1
+      - zoo2
+      - zoo3
+      - kafka1
+      - kafka2
+      - kafka3

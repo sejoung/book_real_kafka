@@ -1,0 +1,3 @@
+rootProject.name = 'book-real-kafka'
+include 'chapter3'
+
