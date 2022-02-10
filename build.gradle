@@ -1,0 +1,28 @@
+subprojects {
+  apply plugin: 'java'
+
+  sourceCompatibility = JavaVersion.VERSION_11
+  targetCompatibility = JavaVersion.VERSION_11
+
+  ext {
+    lombokVersion = "1.18.22"
+  }
+
+  repositories {
+    mavenCentral()
+  }
+
+  test {
+    useJUnitPlatform()
+    maxHeapSize = "2048m"
+  }
+
+  dependencies {
+    compileOnly "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+    testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
+    testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+  }
+}
