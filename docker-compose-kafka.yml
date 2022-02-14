@@ -42,7 +42,6 @@ services:
   kafka1:
     image: confluentinc/cp-kafka:6.1.1
     hostname: kafka1
-    restart: always
     links:
       - zoo1:zoo1
       - zoo2:zoo2
@@ -68,7 +67,6 @@ services:
   kafka2:
     image: confluentinc/cp-kafka:6.1.1
     hostname: kafka2
-    restart: always
     links:
       - zoo1:zoo1
       - zoo2:zoo2
@@ -95,7 +93,6 @@ services:
   kafka3:
     image: confluentinc/cp-kafka:6.1.1
     hostname: kafka3
-    restart: always
     links:
       - zoo1:zoo1
       - zoo2:zoo2
