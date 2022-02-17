@@ -1,3 +1,4 @@
 rootProject.name = 'book-real-kafka'
 include 'chapter3'
 include 'chapter5'
+include 'chapter6'
